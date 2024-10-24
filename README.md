@@ -4,10 +4,10 @@ The **owner** will be able to add his **property** and the landlord will be able
 
 The relational database chosen is **PostgreSQL**.
 ## Schema
-![alt text](https://gitlab.fit.cvut.cz/fedosvla/tjv/-/blob/main/DatabaseSchema.png?ref_type=heads)
+![DBschema](DatabaseSchema.png)
 ## Business operation
-It must be ensured that no more than 4 people can rent one property at a time
+It must be ensured that no more than 4 people can rent one property at a time.
 ## Complex query
-Select owners with more than five properties registered
+Select owners with more than five properties registered.
 
 
