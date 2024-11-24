@@ -1,13 +1,13 @@
-# UnReality
-The application is a property management system for real estate agency UnReality.
-The **owner** will be able to add his **property** and the landlord will be able to rent it out. One property can be rented by multiple **tenants** and one **tenant** can rent multiple properties.
+# EasyVPS
+The application application for a customisable VPS rental shop called EasyVPS.
+The **user** will be able to choose his own **configuration**  for his VPS instance.
 
 The relational database chosen is **PostgreSQL**.
 ## Schema
 ![DBschema](DatabaseSchema.png)
 ## Business operation
-It must be ensured that no more than 4 people can rent one property at a time.
+Before adding a user's configuration to the server, it is necessary to check the server's resource availability (a single server can host multiple instances belonging to the same or different users). If the server is already overloaded, the instance should be assigned to a different server.
 ## Complex query
-Select owners with more than five properties registered.
+Select users who have more than 3 instances at a time.
 
 
