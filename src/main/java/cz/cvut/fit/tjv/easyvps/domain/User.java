@@ -1,6 +1,7 @@
 package cz.cvut.fit.tjv.easyvps.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,22 +18,25 @@ public class User implements EntityWithId<Long> {
     @Column(name = "id_user")
     private Long id;
 
+    @NotBlank(message = "Username is required")
     private String username;
 
+    @NotBlank(message = "Email is required")
     private String email;
 
+    @NotBlank(message = "Password is required")
     private String password;
 
     private String role;
 
 
-    @ManyToMany(targetEntity = UserConfiguration.class)
+    @ManyToMany(targetEntity = Configuration.class)
     @JoinTable(
-            name = "user_conf",
-            joinColumns = @JoinColumn(name = "id_user_configuration"), // another table
+            name = "users_configurations",
+            joinColumns = @JoinColumn(name = "id_configuration"), // another table
             inverseJoinColumns = @JoinColumn(name = "id_user") // this table
     )
-    private List<User> user_configurations;
+    private List<User> configurations;
 
 
     @Override

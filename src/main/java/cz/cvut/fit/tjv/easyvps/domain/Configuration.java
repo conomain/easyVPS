@@ -7,14 +7,14 @@ import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Table(name = "user_configurations")
+@Table(name = "configurations")
 @Getter
 @Setter
-public class UserConfiguration implements EntityWithId<Long> {
+public class Configuration implements EntityWithId<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Column(name = "id_user_configuration")
+    @Column(name = "id_configuration")
     private Long id;
 
     private String name;
@@ -32,7 +32,7 @@ public class UserConfiguration implements EntityWithId<Long> {
     @JoinColumn(name = "server_id")
     private Server server;
 
-    @ManyToMany(mappedBy = "user_configurations")
+    @ManyToMany(mappedBy = "configurations")
     private List<User> users;
 
 

@@ -31,8 +31,8 @@ public class Server implements EntityWithId<Long> {
     private String status;
 
 
-    @OneToMany(fetch = FetchType.LAZY, targetEntity = UserConfiguration.class, mappedBy = "server", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<UserConfiguration> user_configurations;
+    @OneToMany(fetch = FetchType.LAZY, targetEntity = Configuration.class, mappedBy = "server", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Configuration> configurations;
 
 
     @Override
