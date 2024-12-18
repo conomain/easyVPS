@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "server")
@@ -28,11 +30,17 @@ public class Server implements EntityWithId<Long> {
     @Column(name = "server_storage")
     private Long storage;
 
-    private String status;
+    @Column(name = "is_running")
+    private boolean isRunning;
 
 
-    @OneToMany(fetch = FetchType.LAZY, targetEntity = Configuration.class, mappedBy = "server", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Configuration> configurations;
+    @ManyToMany(targetEntity = Configuration.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "server_configuration",
+            joinColumns = @JoinColumn(name = "id_server"), // this table
+            inverseJoinColumns = @JoinColumn(name = "id_configuration") // another table
+    )
+    private Set<Configuration> configurations = new HashSet<>();
 
 
     @Override

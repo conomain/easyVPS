@@ -14,7 +14,7 @@ public abstract class CrudServiceInterfaceImpl<T extends EntityWithId<ID>, ID> i
     protected abstract CrudRepository<T, ID> getRepository();
 
     @Override
-    public T create(T e) {
+    public T create(T e) throws IllegalArgumentException {
         if (e.getId() != null && getRepository().existsById(e.getId())) {
             throw new IllegalArgumentException("Entity with id " + e.getId() + " already exists.");
         }
@@ -32,7 +32,7 @@ public abstract class CrudServiceInterfaceImpl<T extends EntityWithId<ID>, ID> i
     }
 
     @Override
-    public void update(ID id, T e) {
+    public void update(ID id, T e) throws IllegalArgumentException {
         if (!getRepository().existsById(id)) {
             throw new IllegalArgumentException("Entity with id " + id + " does not exist.");
         }
@@ -40,7 +40,7 @@ public abstract class CrudServiceInterfaceImpl<T extends EntityWithId<ID>, ID> i
     }
 
     @Override
-    public void deleteById(ID id) {
+    public void deleteById(ID id) throws IllegalArgumentException {
         if (!getRepository().existsById(id)) {
             throw new IllegalArgumentException("Entity with id " + id + " does not exist.");
         }

@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -30,13 +32,16 @@ public class User implements EntityWithId<Long> {
     private String role;
 
 
-    @ManyToMany(targetEntity = Configuration.class)
+/*    @ManyToMany(targetEntity = Configuration.class)
     @JoinTable(
             name = "users_configurations",
-            joinColumns = @JoinColumn(name = "id_configuration"), // another table
-            inverseJoinColumns = @JoinColumn(name = "id_user") // this table
+            joinColumns = @JoinColumn(name = "id_user"), // this table
+            inverseJoinColumns = @JoinColumn(name = "id_configuration") // another table
     )
-    private List<User> configurations;
+    private List<Configuration> configurations;*/
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserConfiguration> configurations = new HashSet<>();
 
 
     @Override
