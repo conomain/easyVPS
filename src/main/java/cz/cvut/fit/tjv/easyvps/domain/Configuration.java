@@ -29,8 +29,8 @@ public class Configuration implements EntityWithId<Long> {
 
     private Long price;
 
-    @ManyToMany(mappedBy = "configurations")
-    private Set<Server> servers = new HashSet<>();
+    @OneToMany(mappedBy = "configuration", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Instance> servers = new HashSet<>();
 
     @OneToMany(mappedBy = "configuration", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserConfiguration> users = new HashSet<>();

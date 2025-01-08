@@ -8,42 +8,42 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "user_configuration")
+@Table(name = "instances")
 @Getter
 @Setter
-public class UserConfiguration {
+public class Instance {
 
     @EmbeddedId
-    private UserConfigurationId id = new UserConfigurationId();
+    private InstanceId id = new InstanceId();
 
-    @MapsId("userId")
+    @MapsId("serverId")
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    @JoinColumn(name = "server_id")
+    private Server server;
 
     @MapsId("configurationId")
     @ManyToOne
     @JoinColumn(name = "configuration_id")
     private Configuration configuration;
 
-    @Column(name = "quantity")
-    private Long quantity;
+    @Column(name = "instance_ip")
+    private String ip;
 
 
     @Getter
     @Setter
     @Embeddable
-    public static class UserConfigurationId implements Serializable {
+    public static class InstanceId implements Serializable {
 
-        private Long userId;
+        private Long serverId;
         private Long configurationId;
 
-        public UserConfigurationId() {}
+        public InstanceId() {}
 
-        public UserConfigurationId(Long configurationId, Long userId) {
+        public InstanceId(Long configurationId, Long serverId) {
             super();
-            this.userId = userId;
             this.configurationId = configurationId;
+            this.serverId = serverId;
         }
 
         @Override
@@ -51,15 +51,15 @@ public class UserConfiguration {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            UserConfigurationId that = (UserConfigurationId) o;
+            InstanceId that = (InstanceId) o;
 
-            if (!userId.equals(that.userId)) return false;
-            return configurationId.equals(that.configurationId);
+            if (!configurationId.equals(that.configurationId)) return false;
+            return serverId.equals(that.serverId);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(userId, configurationId);
+            return Objects.hash(serverId, configurationId);
         }
     }
 }

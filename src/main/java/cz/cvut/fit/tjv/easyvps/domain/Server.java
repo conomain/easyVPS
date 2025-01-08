@@ -34,13 +34,8 @@ public class Server implements EntityWithId<Long> {
     private boolean isRunning;
 
 
-    @ManyToMany(targetEntity = Configuration.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "server_configuration",
-            joinColumns = @JoinColumn(name = "id_server"), // this table
-            inverseJoinColumns = @JoinColumn(name = "id_configuration") // another table
-    )
-    private Set<Configuration> configurations = new HashSet<>();
+    @OneToMany(mappedBy = "server", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Instance> instances = new HashSet<>();
 
 
     @Override

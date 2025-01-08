@@ -1,5 +1,5 @@
 # EasyVPS
-The application application for a customisable VPS rental shop called EasyVPS.
+The application for a customisable VPS rental shop called EasyVPS.
 The **user** will be able to choose his own **configuration**  for his VPS instance.
 
 The relational database chosen is **PostgreSQL**.

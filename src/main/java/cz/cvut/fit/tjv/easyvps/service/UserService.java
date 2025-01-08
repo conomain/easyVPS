@@ -17,20 +17,18 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
 
     private final UserRepository userRepository;
     private final ConfigurationRepository configurationRepository;
-    private final ServerRepository serverRepository;
     private final UserConfigurationRepository userConfigurationRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, ConfigurationRepository configurationRepository, ServerRepository serverRepository, UserConfigurationRepository userConfigurationRepository) {
+    public UserService(UserRepository userRepository, ConfigurationRepository configurationRepository, UserConfigurationRepository userConfigurationRepository) {
         this.userRepository = userRepository;
         this.configurationRepository = configurationRepository;
-        this.serverRepository = serverRepository;
         this.userConfigurationRepository = userConfigurationRepository;
     }
 
 
     @Override
-    public User create(User user) {
+    public User create(User user) throws IllegalArgumentException {
         if (userRepository.findById(user.getId()).isPresent()) {
             throw new IllegalArgumentException("User with id " + user.getId() + " already exists.");
         }
@@ -45,7 +43,7 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(Long id) throws IllegalArgumentException {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
         }
@@ -83,6 +81,7 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
         configuration.getUsers().add(userConfiguration);
         configurationRepository.save(configuration);
 
+        user.getConfigurations().add(userConfiguration);
         userRepository.save(user);
     }
 
@@ -113,6 +112,10 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
 
         if (configurationQuantity.equals(quantity)) {
             userConfigurationRepository.deleteById(userConfigurationId);
+
+            user.getConfigurations().remove(userConfiguration);
+            userRepository.save(user);
+
             configuration.getUsers().remove(userConfiguration);
             configurationRepository.save(configuration);
         }
