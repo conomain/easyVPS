@@ -30,9 +30,6 @@ public class Server implements EntityWithId<Long> {
     @Column(name = "server_storage")
     private Long storage;
 
-    @Column(name = "is_running")
-    private boolean isRunning;
-
 
     @OneToMany(mappedBy = "server", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Instance> instances = new HashSet<>();

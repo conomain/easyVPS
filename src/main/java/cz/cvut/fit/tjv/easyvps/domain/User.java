@@ -29,19 +29,9 @@ public class User implements EntityWithId<Long> {
     @NotBlank(message = "Password is required")
     private String password;
 
-    private String role;
-
-
-/*    @ManyToMany(targetEntity = Configuration.class)
-    @JoinTable(
-            name = "users_configurations",
-            joinColumns = @JoinColumn(name = "id_user"), // this table
-            inverseJoinColumns = @JoinColumn(name = "id_configuration") // another table
-    )
-    private List<Configuration> configurations;*/
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserConfiguration> configurations = new HashSet<>();
+    private Set<Instance> instances = new HashSet<>();
 
 
     @Override

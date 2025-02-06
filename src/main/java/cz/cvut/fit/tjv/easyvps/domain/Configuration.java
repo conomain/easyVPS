@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -19,22 +18,24 @@ public class Configuration implements EntityWithId<Long> {
     @Column(name = "id_configuration")
     private Long id;
 
+    @Column(name = "configuration_name")
     private String name;
 
+    @Column(name = "configuration_cpu_cores")
     private Long cpu_cores;
 
+    @Column(name = "configuration_ram")
     private Long ram;
 
+    @Column(name = "configuration_storage")
     private Long storage;
 
+    @Column(name = "configuration_price")
     private Long price;
 
-    @OneToMany(mappedBy = "configuration", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Instance> servers = new HashSet<>();
 
     @OneToMany(mappedBy = "configuration", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<UserConfiguration> users = new HashSet<>();
-
+    private Set<Instance> instances = new HashSet<>();
 
     @Override
     public Long getId() {

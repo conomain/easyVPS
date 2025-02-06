@@ -1,30 +1,26 @@
 package cz.cvut.fit.tjv.easyvps.service;
 
-import cz.cvut.fit.tjv.easyvps.domain.Configuration;
-import cz.cvut.fit.tjv.easyvps.domain.User;
-import cz.cvut.fit.tjv.easyvps.domain.UserConfiguration;
-import cz.cvut.fit.tjv.easyvps.persistence.ConfigurationRepository;
-import cz.cvut.fit.tjv.easyvps.persistence.ServerRepository;
-import cz.cvut.fit.tjv.easyvps.persistence.UserConfigurationRepository;
-import cz.cvut.fit.tjv.easyvps.persistence.UserRepository;
+import cz.cvut.fit.tjv.easyvps.domain.*;
+import cz.cvut.fit.tjv.easyvps.persistence.*;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
+@AllArgsConstructor
 public class UserService extends CrudServiceInterfaceImpl<User, Long> implements UserServiceInterface {
 
     private final UserRepository userRepository;
     private final ConfigurationRepository configurationRepository;
-    private final UserConfigurationRepository userConfigurationRepository;
+    private final ServerRepository serverRepository;
+    private final InstanceRepository instanceRepository;
 
-    @Autowired
-    public UserService(UserRepository userRepository, ConfigurationRepository configurationRepository, UserConfigurationRepository userConfigurationRepository) {
-        this.userRepository = userRepository;
-        this.configurationRepository = configurationRepository;
-        this.userConfigurationRepository = userConfigurationRepository;
-    }
+    private ServerService serverService;
 
 
     @Override
@@ -43,88 +39,102 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
     }
 
     @Override
-    public void deleteById(Long id) throws IllegalArgumentException {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
-        }
-
-        throw new IllegalArgumentException("User with id " + id + " does not exist.");
-    }
-
-    @Override
-    public void addConfigurationsToUser(Long configurationId, Long userId, Long quantity) throws IllegalArgumentException {
+    public void deleteById(Long userId) throws IllegalArgumentException {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " does not exist."));
 
-        Configuration configuration = configurationRepository.findById(configurationId)
-                .orElseThrow(() -> new IllegalArgumentException("Configuration with id " + configurationId + " does not exist."));
+        Set<Instance> instances = user.getInstances();
 
-        if (userConfigurationRepository.existsByConfigurationIdAndUserId(configurationId, userId)) {
-            UserConfiguration.UserConfigurationId userConfigurationId = new UserConfiguration.UserConfigurationId(configurationId, userId);
-            UserConfiguration userConfiguration = userConfigurationRepository.findById(userConfigurationId).get();
+        for (Instance instance : instances) {
+            Server server = instance.getServer();
+            serverService.freeServerResources(server, instance.getConfiguration());
+            server.getInstances().remove(instance);
+            serverRepository.save(server);
 
-            userConfiguration.setQuantity(userConfiguration.getQuantity() + quantity);
-            userConfigurationRepository.save(userConfiguration);
-            return;
-        }
-
-        UserConfiguration.UserConfigurationId userConfigurationId = new UserConfiguration.UserConfigurationId(configurationId, userId);
-
-        UserConfiguration userConfiguration = new UserConfiguration();
-        userConfiguration.setId(userConfigurationId);
-        userConfiguration.setConfiguration(configuration);
-        userConfiguration.setUser(user);
-        userConfiguration.setQuantity(quantity);
-        userConfigurationRepository.save(userConfiguration);
-
-        configuration.getUsers().add(userConfiguration);
-        configurationRepository.save(configuration);
-
-        user.getConfigurations().add(userConfiguration);
-        userRepository.save(user);
-    }
-
-    @Override
-    public void removeConfigurationsFromUser(Long configurationId, Long userId, Long quantity) throws IllegalArgumentException {
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " does not exist."));
-
-        Configuration configuration = configurationRepository.findById(configurationId)
-                .orElseThrow(() -> new IllegalArgumentException("Configuration with id " + configurationId + " does not exist."));
-
-        if (!userConfigurationRepository.existsByConfigurationIdAndUserId(configurationId, userId)) {
-            throw new IllegalArgumentException("User with id " + userId + " does not have configuration with id " + configurationId + ".");
-        }
-
-        UserConfiguration.UserConfigurationId userConfigurationId = new UserConfiguration.UserConfigurationId(configurationId, userId);
-        UserConfiguration userConfiguration = userConfigurationRepository.findById(userConfigurationId).get();
-        Long configurationQuantity = userConfiguration.getQuantity();
-
-        if (configurationQuantity < quantity) {
-            throw new IllegalArgumentException("User with id " + userId + " does not have enough configuration with id " + configurationId + ".");
-        }
-
-        if (quantity < 0) {
-            throw new IllegalArgumentException("Quantity must be positive.");
-        }
-
-        if (configurationQuantity.equals(quantity)) {
-            userConfigurationRepository.deleteById(userConfigurationId);
-
-            user.getConfigurations().remove(userConfiguration);
-            userRepository.save(user);
-
-            configuration.getUsers().remove(userConfiguration);
+            Configuration configuration = instance.getConfiguration();
+            configuration.getInstances().remove(instance);
             configurationRepository.save(configuration);
-        }
-        else {
-            userConfiguration.setQuantity(configurationQuantity - quantity);
-            userConfigurationRepository.save(userConfiguration);
+
+            user.getInstances().remove(instance);
+            userRepository.save(user);
         }
 
+        userRepository.deleteById(userId);
+    }
+
+    @Override
+    public void addInstanceToUser(Long configurationId, Long userId) throws IllegalArgumentException {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " does not exist."));
+
+        Configuration configuration = configurationRepository.findById(configurationId)
+                .orElseThrow(() -> new IllegalArgumentException("Configuration with id " + configurationId + " does not exist."));
+
+        Server server = serverService.findAvailableServer(configuration)
+                .orElseThrow(() -> new IllegalArgumentException("No available server for configuration."));
+
+        serverService.allocateServerResources(server, configuration);
+
+        String newIp = generateUniqueIp();
+
+        Instance.InstanceId instanceId = new Instance.InstanceId(configurationId, server.getId(), userId, newIp);
+        Instance instance = new Instance();
+        instance.setId(instanceId);
+        instance.setServer(server);
+        instance.setConfiguration(configuration);
+        instance.setUser(user);
+        instance.setIp(newIp);
+
+        instanceRepository.save(instance);
+
+        user.getInstances().add(instance);
+        configuration.getInstances().add(instance);
+        server.getInstances().add(instance);
+
         userRepository.save(user);
+        configurationRepository.save(configuration);
+        serverRepository.save(server);
+    }
+
+    private String generateUniqueIp() {
+        String ip;
+        do {
+            ip = "192.168." + (int) (Math.random() * 256) + "." + (int) (Math.random() * 256);
+        }
+        while (instanceRepository.existsByIp(ip));
+        return ip;
+    }
+
+    @Override
+    public void removeInstanceFromUser(Long configurationId, Long serverId, Long userId, String ip) throws IllegalArgumentException {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " does not exist."));
+
+        Configuration configuration = configurationRepository.findById(configurationId)
+                .orElseThrow(() -> new IllegalArgumentException("Configuration with id " + configurationId + " does not exist."));
+
+        Server server = serverRepository.findById(serverId)
+                .orElseThrow(() -> new IllegalArgumentException("Server with id " + serverId + " does not exist."));
+
+        Instance.InstanceId instanceId = new Instance.InstanceId(configurationId, serverId, userId, ip);
+        Instance instance = instanceRepository.findById(instanceId)
+                .orElseThrow(() -> new IllegalArgumentException("Instance with ip " + ip + " does not exist."));
+
+
+        serverService.freeServerResources(server, instance.getConfiguration());
+
+        user.getInstances().remove(instance);
+        configuration.getInstances().remove(instance);
+        server.getInstances().remove(instance);
+
+        //instanceRepository.delete(instance);
+
+        userRepository.save(user);
+        configurationRepository.save(configuration);
+        serverRepository.save(server);
     }
 
     @Override
