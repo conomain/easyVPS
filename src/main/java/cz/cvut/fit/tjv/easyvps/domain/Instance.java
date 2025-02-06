@@ -16,10 +16,6 @@ public class Instance {
     @EmbeddedId
     private InstanceId id = new InstanceId();
 
-    @MapsId("serverId")
-    @ManyToOne
-    @JoinColumn(name = "server_id")
-    private Server server;
 
     @MapsId("configurationId")
     @ManyToOne
@@ -31,44 +27,43 @@ public class Instance {
     @JoinColumn(name = "user_id")
     private User user;
 
+
+    @Column(name = "instance_quantity")
+    private Long quantity;
+
     @Column(name = "instance_ip")
     private String ip;
 
+    @ManyToOne
+    @JoinColumn(name = "server_id")
+    private Server server;
 
     @Getter
     @Setter
     @Embeddable
     public static class InstanceId implements Serializable {
-
-        private Long serverId;
-        private Long configurationId;
         private Long userId;
-        private String ip;
+        private Long configurationId;
 
-        public InstanceId() {
-        }
+        public InstanceId() {}
 
-        public InstanceId(Long configurationId, Long serverId, Long userId, String ip) {
-            super();
+        public InstanceId(Long userId, Long configurationId) {
+            this.userId = userId;
             this.configurationId = configurationId;
-            this.serverId = serverId;
         }
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (!(o instanceof InstanceId)) return false;
             InstanceId that = (InstanceId) o;
-            return Objects.equals(serverId, that.serverId) &&
-                    Objects.equals(configurationId, that.configurationId) &&
-                    Objects.equals(userId, that.userId) &&
-                    Objects.equals(ip, that.ip);
+            return Objects.equals(userId, that.userId) &&
+                    Objects.equals(configurationId, that.configurationId);
         }
-
 
         @Override
         public int hashCode() {
-            return Objects.hash(serverId, configurationId, userId, ip);
+            return Objects.hash(userId, configurationId);
         }
     }
 }

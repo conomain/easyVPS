@@ -27,6 +27,7 @@ public class ConfigurationService extends CrudServiceInterfaceImpl<Configuration
 
     @Override
     public void deleteById(Long id) throws IllegalArgumentException {
+
         Configuration configuration = configurationRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Configuration with id " + id + " does not exist."));
 

@@ -19,7 +19,6 @@ public class ServerService extends CrudServiceInterfaceImpl<Server, Long> implem
 
     private final UserRepository userRepository;
     private final ServerRepository serverRepository;
-    private final InstanceRepository instanceRepository;
     private final ConfigurationRepository configurationRepository;
 
     @Override
@@ -48,16 +47,16 @@ public class ServerService extends CrudServiceInterfaceImpl<Server, Long> implem
     }
 
 
-    private boolean hasEnoughResources(Server server, Configuration configuration) {
-        return server.getCpu_cores() >= configuration.getCpu_cores() &&
-                server.getRam() >= configuration.getRam() &&
-                server.getStorage() >= configuration.getStorage();
-    }
-
     public Optional<Server> findAvailableServer(Configuration configuration) {
         return serverRepository.findAll().stream()
                 .filter(server -> hasEnoughResources(server, configuration))
                 .findFirst();
+    }
+
+    private boolean hasEnoughResources(Server server, Configuration configuration) {
+        return server.getCpu_cores() >= configuration.getCpu_cores() &&
+                server.getRam() >= configuration.getRam() &&
+                server.getStorage() >= configuration.getStorage();
     }
 
     public void allocateServerResources(Server server, Configuration configuration) throws IllegalArgumentException {

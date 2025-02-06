@@ -7,5 +7,5 @@ public interface UserServiceInterface extends CrudServiceInterface<User, Long> {
 
     public void addInstanceToUser(Long configurationId, Long userId) throws IllegalArgumentException;
 
-    public void removeInstanceFromUser(Long configurationId, Long serverId, Long userId, String ip) throws IllegalArgumentException;
+    public void removeInstanceFromUser(Long userId, Long configurationId) throws IllegalArgumentException;
 }

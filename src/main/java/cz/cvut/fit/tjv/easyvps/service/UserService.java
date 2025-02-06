@@ -9,6 +9,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -25,9 +26,13 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
 
     @Override
     public User create(User user) throws IllegalArgumentException {
-        if (userRepository.findById(user.getId()).isPresent()) {
+
+        Optional<Long> id = Optional.ofNullable(user.getId());
+
+        if (id.isPresent()) {
             throw new IllegalArgumentException("User with id " + user.getId() + " already exists.");
         }
+
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new IllegalArgumentException("User with username " + user.getUsername() + " already exists.");
         }
@@ -79,23 +84,30 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
 
         String newIp = generateUniqueIp();
 
-        Instance.InstanceId instanceId = new Instance.InstanceId(configurationId, server.getId(), userId, newIp);
-        Instance instance = new Instance();
-        instance.setId(instanceId);
-        instance.setServer(server);
-        instance.setConfiguration(configuration);
-        instance.setUser(user);
-        instance.setIp(newIp);
+        Instance.InstanceId instanceId = new Instance.InstanceId(userId, configurationId);
+        if (instanceRepository.existsById(instanceId)) {
+            Instance existingInstance = instanceRepository.findById(instanceId).get();
+            existingInstance.setQuantity(existingInstance.getQuantity() + 1);
+            instanceRepository.save(existingInstance);
+        }
+        else {
+            Instance instance = new Instance();
+            instance.setId(instanceId);
+            instance.setServer(server);
+            instance.setConfiguration(configuration);
+            instance.setUser(user);
+            instance.setIp(newIp);
+            instance.setQuantity(1L);
+            instanceRepository.save(instance);
 
-        instanceRepository.save(instance);
+            user.getInstances().add(instance);
+            configuration.getInstances().add(instance);
+            server.getInstances().add(instance);
 
-        user.getInstances().add(instance);
-        configuration.getInstances().add(instance);
-        server.getInstances().add(instance);
-
-        userRepository.save(user);
-        configurationRepository.save(configuration);
-        serverRepository.save(server);
+            userRepository.save(user);
+            configurationRepository.save(configuration);
+            serverRepository.save(server);
+        }
     }
 
     private String generateUniqueIp() {
@@ -108,7 +120,7 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
     }
 
     @Override
-    public void removeInstanceFromUser(Long configurationId, Long serverId, Long userId, String ip) throws IllegalArgumentException {
+    public void removeInstanceFromUser(Long userId, Long configurationId) throws IllegalArgumentException {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " does not exist."));
@@ -116,25 +128,29 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
         Configuration configuration = configurationRepository.findById(configurationId)
                 .orElseThrow(() -> new IllegalArgumentException("Configuration with id " + configurationId + " does not exist."));
 
-        Server server = serverRepository.findById(serverId)
-                .orElseThrow(() -> new IllegalArgumentException("Server with id " + serverId + " does not exist."));
-
-        Instance.InstanceId instanceId = new Instance.InstanceId(configurationId, serverId, userId, ip);
+        Instance.InstanceId instanceId = new Instance.InstanceId(userId, configurationId);
         Instance instance = instanceRepository.findById(instanceId)
-                .orElseThrow(() -> new IllegalArgumentException("Instance with ip " + ip + " does not exist."));
+                .orElseThrow(() -> new IllegalArgumentException("Instance for user id " + userId +
+                        " and configuration id " + configurationId + " does not exist."));
 
 
-        serverService.freeServerResources(server, instance.getConfiguration());
+        Server server = instance.getServer();
+        serverService.freeServerResources(server, configuration);
 
-        user.getInstances().remove(instance);
-        configuration.getInstances().remove(instance);
-        server.getInstances().remove(instance);
+        if (instance.getQuantity() > 1) {
+            instance.setQuantity(instance.getQuantity() - 1);
+            instanceRepository.save(instance);
+        }
+        else {
+            user.getInstances().remove(instance);
+            instance.getConfiguration().getInstances().remove(instance);
+            server.getInstances().remove(instance);
+            instanceRepository.delete(instance);
 
-        //instanceRepository.delete(instance);
-
-        userRepository.save(user);
-        configurationRepository.save(configuration);
-        serverRepository.save(server);
+            userRepository.save(user);
+            configurationRepository.save(configuration);
+            serverRepository.save(server);
+        }
     }
 
     @Override

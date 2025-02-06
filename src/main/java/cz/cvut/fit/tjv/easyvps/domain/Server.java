@@ -19,8 +19,6 @@ public class Server implements EntityWithId<Long> {
     @Column(name = "id_server")
     private Long id;
 
-    private String ip;
-
     @Column(name = "server_cpu_cores")
     private Long cpu_cores;
 
