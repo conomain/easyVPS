@@ -59,4 +59,17 @@ public class UserController {
     public void deleteUser(@PathVariable("id") Long id) {
         userService.deleteById(id);
     }
+
+
+    @PostMapping(path = "/{id}/configurations/{configurationId}/instances")
+    public void addInstanceToUser(@PathVariable("id") Long userId,
+                                  @PathVariable("configurationId") Long configurationId) {
+        userService.addInstanceToUser(userId, configurationId);
+    }
+
+    @DeleteMapping(path = "/{id}/configurations/{configurationId}/instances")
+    public void removeInstanceFromUser(@PathVariable("id") Long userId,
+                                  @PathVariable("configurationId") Long configurationId) {
+        userService.addInstanceToUser(userId, configurationId);
+    }
 }
