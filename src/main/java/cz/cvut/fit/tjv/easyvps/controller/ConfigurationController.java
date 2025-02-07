@@ -43,7 +43,8 @@ public class ConfigurationController {
     }
 
     @PutMapping(path = "/{id}")
-    public ConfigurationDTO updateConfiguration(@PathVariable("id") Long id, @RequestBody ConfigurationDTO configurationDTO) {
+    public ConfigurationDTO updateConfiguration(@PathVariable("id") Long id,
+                                                @RequestBody ConfigurationDTO configurationDTO) {
         Configuration configuration = configurationDTOConverter.toEntity(configurationDTO);
         configurationService.update(id, configuration);
         return configurationDTOConverter.toDTO(configuration);

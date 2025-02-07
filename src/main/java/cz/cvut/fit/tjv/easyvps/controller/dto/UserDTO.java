@@ -12,5 +12,5 @@ public class UserDTO {
     private String username;
     private String email;
     private String password;
-    private Map<Long, Long> instances;
+    private Map<String, Long> instances;
 }

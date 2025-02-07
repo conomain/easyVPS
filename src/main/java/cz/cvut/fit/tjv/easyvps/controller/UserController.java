@@ -1,6 +1,7 @@
 package cz.cvut.fit.tjv.easyvps.controller;
 
 import cz.cvut.fit.tjv.easyvps.controller.converter.DTOConverterInterface;
+import cz.cvut.fit.tjv.easyvps.controller.dto.InstanceDTO;
 import cz.cvut.fit.tjv.easyvps.controller.dto.UserDTO;
 import cz.cvut.fit.tjv.easyvps.domain.Instance;
 import cz.cvut.fit.tjv.easyvps.domain.User;
@@ -18,6 +19,7 @@ public class UserController {
 
     private final UserServiceInterface userService;
     private final DTOConverterInterface<UserDTO, User> userDTOConverter;
+    private final DTOConverterInterface<InstanceDTO, Instance> instanceDTOConverter;
 
     @GetMapping
     public Set<UserDTO> getUsers() {
@@ -37,10 +39,22 @@ public class UserController {
     }
 
     @GetMapping("/{id}/instances")
-    public Set<Instance> getUserInstances(@PathVariable("id") Long id) {
-        User user = userService.readById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User with id " + id + " not found"));
-        return user.getInstances();
+    public Set<InstanceDTO> getUserInstances(@PathVariable("id") Long id) {
+        User user = userService.readById(id).get();
+        Set<InstanceDTO> instanceDTOS = new HashSet<>();
+
+        for (Instance instance : user.getInstances()) {
+            instanceDTOS.add(instanceDTOConverter.toDTO(instance));
+        }
+
+        return instanceDTOS;
+    }
+
+    @GetMapping(path = "/{id}/instances/{configurationId}")
+    public InstanceDTO getInstance(@PathVariable("id") Long userId,
+                                @PathVariable("configurationId") Long configurationId,
+                                @RequestParam("hash") String ipHash) {
+        return instanceDTOConverter.toDTO(userService.findInstance(userId, configurationId, ipHash));
     }
 
     @PostMapping
@@ -49,7 +63,8 @@ public class UserController {
     }
 
     @PutMapping(path = "/{id}")
-    public UserDTO updateUser(@PathVariable("id") Long id, @RequestBody UserDTO userDTO) {
+    public UserDTO updateUser(@PathVariable("id") Long id,
+                              @RequestBody UserDTO userDTO) {
         User user = userDTOConverter.toEntity(userDTO);
         userService.update(id, user);
         return userDTOConverter.toDTO(user);
@@ -60,16 +75,16 @@ public class UserController {
         userService.deleteById(id);
     }
 
-
-    @PostMapping(path = "/{id}/configurations/{configurationId}/instances")
-    public void addInstanceToUser(@PathVariable("id") Long userId,
-                                  @PathVariable("configurationId") Long configurationId) {
-        userService.addInstanceToUser(userId, configurationId);
+    @PostMapping(path = "/{id}/start")
+    public UserDTO addInstanceToUser(@PathVariable("id") Long userId,
+                                  @RequestParam("configurationId") Long configurationId) {
+        return userDTOConverter.toDTO(userService.addInstanceToUser(configurationId, userId));
     }
 
-    @DeleteMapping(path = "/{id}/configurations/{configurationId}/instances")
-    public void removeInstanceFromUser(@PathVariable("id") Long userId,
-                                  @PathVariable("configurationId") Long configurationId) {
-        userService.addInstanceToUser(userId, configurationId);
+    @DeleteMapping(path = "/{id}/stop")
+    public UserDTO removeInstanceFromUser(@PathVariable("id") Long userId,
+                                       @RequestParam("configurationId") Long configurationId,
+                                       @RequestParam("hash") String ipHash) {
+        return userDTOConverter.toDTO(userService.removeInstanceFromUser(userId, configurationId, ipHash));
     }
 }

@@ -1,5 +1,6 @@
 package cz.cvut.fit.tjv.easyvps.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

@@ -7,10 +7,7 @@ import cz.cvut.fit.tjv.easyvps.persistence.InstanceRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @AllArgsConstructor
@@ -21,8 +18,8 @@ public class UserDTOConverter implements DTOConverterInterface<UserDTO, User> {
     @Override
     public UserDTO toDTO(User user) {
 
-        Map<Long, Long> instances = new HashMap<>();
-        user.getInstances().forEach((v) -> instances.put(v.getConfiguration().getId(), v.getQuantity()));
+        Map<String, Long> instances = new HashMap<>();
+        user.getInstances().forEach((v) -> instances.put(v.getId().getIpHash(), v.getConfiguration().getId()));
 
         return new UserDTO(user.getId(), user.getUsername(), user.getEmail(), user.getPassword(), instances);
     }
@@ -37,11 +34,13 @@ public class UserDTOConverter implements DTOConverterInterface<UserDTO, User> {
 
         Set<Instance> instances = new HashSet<>();
         if (dto.getInstances() != null) {
-            for (Long configurationId : dto.getInstances().keySet()) {
+            for (Map.Entry<String, Long> entry : dto.getInstances().entrySet()) {
+                Long configurationId = entry.getValue();
+                String ipHash = entry.getKey();
 
-                Instance.InstanceId instanceId = new Instance.InstanceId(dto.getId(), configurationId);
-
-                instanceRepository.findById(instanceId).ifPresent(instances::add);
+                Instance.InstanceId instanceId = new Instance.InstanceId(dto.getId(), configurationId, ipHash);
+                Optional<Instance> instance = instanceRepository.findById(instanceId);
+                instance.ifPresent(instances::add);
             }
         }
 

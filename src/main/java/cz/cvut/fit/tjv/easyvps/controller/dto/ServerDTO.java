@@ -15,5 +15,5 @@ public class ServerDTO {
     private Long cpu_cores;
     private Long ram;
     private Long storage;
-    private Map<Long, Long> instances;
+    private Map<String, Long> instances;
 }

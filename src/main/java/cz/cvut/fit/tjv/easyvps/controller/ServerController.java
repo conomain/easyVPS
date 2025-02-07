@@ -43,7 +43,8 @@ public class ServerController {
     }
 
     @PutMapping(path = "/{id}")
-    public ServerDTO updateServer(@PathVariable("id") Long id, @RequestBody ServerDTO serverDTO) {
+    public ServerDTO updateServer(@PathVariable("id") Long id,
+                                  @RequestBody ServerDTO serverDTO) {
         Server server = serverDTOConverter.toEntity(serverDTO);
         serverService.update(id, server);
         return serverDTOConverter.toDTO(server);
