@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuration Details</title>
+    <link rel="stylesheet" th:href="@{/css/details.css}">
+</head>
+<body>
+<h1>Configuration Details</h1>
+<p><strong>ID:</strong> <span th:text="${configuration.id}">ID</span></p>
+<p><strong>Name:</strong> <span th:text="${configuration.name}">Name</span></p>
+<p><strong>CPU Cores:</strong> <span th:text="${configuration.cpu_cores}">CPU Cores</span></p>
+<p><strong>RAM:</strong> <span th:text="${configuration.ram}">RAM</span></p>
+<p><strong>Storage:</strong> <span th:text="${configuration.storage}">Storage</span></p>
+<p><strong>Price:</strong> <span th:text="${configuration.price}">Price</span></p>
+
+<a href="/configuration">Back to Configuration List</a> |
+<a th:href="@{'/configuration/' + ${configuration.id} + '/edit'}">Edit Configuration</a>
+</body>
+</html>

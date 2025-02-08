@@ -1,0 +1,103 @@
+/* Основной стиль для body */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    margin: 30px;
+    padding: 20px;
+    color: #333;
+}
+
+h1 {
+    color: #007bff;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+h2 {
+    color: #444;
+    font-size: 1.5em;
+    margin-top: 30px;
+}
+
+p {
+    font-size: 1.1em;
+    margin: 10px 0;
+}
+
+/* Стиль для ссылок */
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0056b3;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 5px;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+form {
+    margin-top: 20px;
+}
+
+/* Таблицы */
+table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #007bff;
+    color: white;
+    text-transform: uppercase;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Стили для кнопок и ссылок в меню */
+.menu {
+    margin-top: 30px;
+}
+
+.menu a {
+    display: inline-block;
+    padding: 10px 15px;
+    margin: 5px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    text-transform: uppercase;
+}
+
+.menu a:hover {
+    background-color: #0056b3;
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuration List</title>
+    <link rel="stylesheet" th:href="@{/css/list.css}">
+</head>
+<body>
+<h1>Configuration List</h1>
+<a href="/configuration/create">Create new configuration</a>
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>CPU Cores</th>
+        <th>RAM</th>
+        <th>Storage</th>
+        <th>Price</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="conf : ${configurations}">
+        <td th:text="${conf.id}"></td>
+        <td th:text="${conf.name}"></td>
+        <td th:text="${conf.cpu_cores}"></td>
+        <td th:text="${conf.ram}"></td>
+        <td th:text="${conf.storage}"></td>
+        <td th:text="${conf.price}"></td>
+        <td>
+            <a th:href="@{'/configuration/' + ${conf.id}}">View</a> |
+            <a th:href="@{'/configuration/' + ${conf.id} + '/edit'}">Edit</a> |
+            <a th:href="@{'/configuration/' + ${conf.id} + '/delete'}" onclick="return confirm('Are you sure you want to delete this configuration?');">Delete</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<a href="/">Back to Home page</a>
+
+</body>
+</html>

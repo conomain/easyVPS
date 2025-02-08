@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuration Form</title>
+</head>
+<body>
+<h1 th:text="${configuration.id == null} ? 'Create Configuration' : 'Edit Configuration'">Configuration Form</h1>
+
+<!-- The form is used for both creation and editing -->
+<form th:action="${configuration.id == null} ? '/configuration/create' : '/configuration/' + ${configuration.id} + '/edit'"
+      method="post" th:object="${configuration}">
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" th:field="*{name}" required />
+    </div>
+    <div>
+        <label for="cpuCores">CPU Cores:</label>
+        <input type="number" id="cpuCores" th:field="*{cpu_cores}" required />
+    </div>
+    <div>
+        <label for="ram">RAM:</label>
+        <input type="number" id="ram" th:field="*{ram}" required />
+    </div>
+    <div>
+        <label for="storage">Storage:</label>
+        <input type="number" id="storage" th:field="*{storage}" required />
+    </div>
+    <div>
+        <label for="price">Price:</label>
+        <input type="number" id="price" th:field="*{price}" required />
+    </div>
+    <div>
+        <button type="submit" th:text="${configuration.id == null} ? 'Create' : 'Update'">Submit</button>
+    </div>
+</form>
+
+<a href="/configuration">Cancel</a>
+</body>
+</html>

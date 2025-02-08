@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User's instances</title>
+</head>
+<body>
+<h1>User's instances:</h1>
+
+<table border="1">
+    <tr>
+        <th>ID Configuration</th>
+        <th>IP Hash</th>
+        <th>Actions:</th>
+    </tr>
+    <tr th:each="instance : ${instances}">
+        <td th:text="${instance.configurationId}"></td>
+        <td th:text="${instance.ipHash}"></td>
+        <td>
+            <a th:href="@{/user/{id}/instances/{configId}(id=${instance.userId}, configId=${instance.configurationId}, hash=${instance.ipHash})}">Details</a>
+            <form th:action="@{/user/{id}/stop(id=${instance.userId})}" method="post" style="display:inline;">
+                <input type="hidden" name="configurationId" th:value="${instance.configurationId}">
+                <input type="hidden" name="hash" th:value="${instance.ipHash}">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+</table>
+
+<a th:href="@{/user/{id}(id=${instances[0]?.userId})}">Back</a>
+</body>
+</html>

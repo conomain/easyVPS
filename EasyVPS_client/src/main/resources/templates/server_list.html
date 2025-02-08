@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Server List</title>
+    <link rel="stylesheet" th:href="@{/css/list.css}">
+</head>
+<body>
+<h1>Server List</h1>
+<a href="/server/create">Create new server</a>
+<table border="1" cellpadding="5" cellspacing="0">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>CPU Cores</th>
+        <th>RAM</th>
+        <th>Storage</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="server : ${servers}">
+        <td th:text="${server.id}">ID</td>
+        <td th:text="${server.cpu_cores}">CPU Cores</td>
+        <td th:text="${server.ram}">RAM</td>
+        <td th:text="${server.storage}">Storage</td>
+        <td>
+            <a th:href="@{'/server/' + ${server.id}}">View</a> |
+            <a th:href="@{'/server/' + ${server.id} + '/edit'}">Edit</a> |
+            <a th:href="@{'/server/' + ${server.id} + '/delete'}" onclick="return confirm('Are you sure you want to delete this server?');">Delete</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<a href="/">Back to Home page</a>
+
+</body>
+</html>

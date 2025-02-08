@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Server Details</title>
+    <link rel="stylesheet" th:href="@{/css/details.css}">
+</head>
+<body>
+<h1>Server Details</h1>
+
+<p><strong>ID:</strong> <span th:text="${server.id}"></span></p>
+<p><strong>CPU Cores:</strong> <span th:text="${server.cpu_cores}"></span></p>
+<p><strong>RAM:</strong> <span th:text="${server.ram}"></span></p>
+<p><strong>Storage:</strong> <span th:text="${server.storage}"></span></p>
+
+<h2>Running Instances</h2>
+<table border="1">
+    <tr>
+        <th>IP</th>
+        <th>IpHash</th>
+    </tr>
+    <tr th:each="instance : ${instances}">
+        <td th:text="${instance.ip}"></td>
+        <td th:text="${instance.ipHash}"></td>
+    </tr>
+</table>
+
+<a href="/server">Back to Servers</a>
+</body>
+</html>

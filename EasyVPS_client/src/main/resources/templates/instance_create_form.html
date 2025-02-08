@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Instance</title>
+</head>
+<body>
+<h1>Create Instance</h1>
+<form th:action="@{'/user/' + ${userId} + '/instances/create'}" method="post">
+    <div>
+        <label for="configurationId">Select Configuration:</label>
+        <select id="configurationId" name="configurationId">
+            <option th:each="conf : ${configurations}" th:value="${conf.id}" th:text="${conf.name}"></option>
+        </select>
+    </div>
+    <div>
+        <button type="submit">Create Instance</button>
+    </div>
+</form>
+<a th:href="@{'/user/' + ${userId}}">Cancel</a>
+</body>
+</html>
