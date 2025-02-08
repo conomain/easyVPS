@@ -1,6 +1,8 @@
 package cz.cvut.fit.tjv.easyvps_client.service;
 
+import cz.cvut.fit.tjv.easyvps_client.client_api.ConfigurationClient;
 import cz.cvut.fit.tjv.easyvps_client.client_api.UserClient;
+import cz.cvut.fit.tjv.easyvps_client.model.ConfigurationDTO;
 import cz.cvut.fit.tjv.easyvps_client.model.InstanceDTO;
 import cz.cvut.fit.tjv.easyvps_client.model.UserDTO;
 import org.springframework.stereotype.Service;
@@ -11,11 +13,14 @@ import java.util.Optional;
 @Service
 public class UserService {
 
+    private ConfigurationClient configurationClient;
+
     private UserClient userClient;
 
 
-    public UserService(UserClient userClient) {
+    public UserService(UserClient userClient, ConfigurationClient configurationClient1) {
         this.userClient = userClient;
+        this.configurationClient = configurationClient1;
     }
 
     public List<UserDTO> readAll() {
@@ -52,5 +57,9 @@ public class UserService {
 
     public void removeInstanceFromUser(Long userId, Long configurationId, String ipHash) {
         userClient.removeInstanceFromUser(userId, configurationId, ipHash);
+    }
+
+    public Optional<ConfigurationDTO> findConfigurationById(Long configurationId) {
+        return configurationClient.read(configurationId);
     }
 }

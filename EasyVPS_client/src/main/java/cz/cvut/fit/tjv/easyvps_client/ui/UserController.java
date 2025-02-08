@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -32,10 +34,24 @@ public class UserController {
 
     @GetMapping("/{id}")
     public String showUser(@PathVariable Long id, Model model) {
-        Optional<UserDTO> user = userService.read(id);
-        if (user.isPresent()) {
-            model.addAttribute("user", user.get());
-            model.addAttribute("instances", userService.getUserInstances(id));
+        Optional<UserDTO> userOpt = userService.read(id);
+        if (userOpt.isPresent()) {
+            UserDTO user = userOpt.get();
+            model.addAttribute("user", user);
+
+            List<InstanceDTO> instances = userService.getUserInstances(id);
+            model.addAttribute("instances", instances);
+
+            Map<Long, ConfigurationDTO> configurations = new HashMap<>();
+            for (InstanceDTO instance : instances) {
+                Long configId = instance.getConfigurationId();
+                if (!configurations.containsKey(configId)) {
+                    Optional<ConfigurationDTO> configOpt = userService.findConfigurationById(instance.getConfigurationId());
+                    configOpt.ifPresent(configurationDTO -> configurations.put(configId, configurationDTO));
+                }
+            }
+            model.addAttribute("configurations", configurations);
+
             return "user_details";
         }
         return "redirect:/user";
@@ -51,11 +67,16 @@ public class UserController {
     @GetMapping("/{id}/instances/{configId}")
     public String showUserInstance(@PathVariable Long id, @PathVariable Long configId,
                                    @RequestParam("hash") String ipHash, Model model) {
-        Optional<InstanceDTO> instance = userService.getUserInstance(id, configId, ipHash);
-        if (instance.isPresent()) {
-            model.addAttribute("instance", instance.get());
+        Optional<InstanceDTO> instanceOpt = userService.getUserInstance(id, configId, ipHash);
+        if (instanceOpt.isPresent()) {
+            InstanceDTO instance = instanceOpt.get();
+            model.addAttribute("instance", instance);
+
+            Optional<ConfigurationDTO> configurationOpt = userService.findConfigurationById(instance.getConfigurationId());
+            configurationOpt.ifPresent(configurationDTO -> model.addAttribute("configuration", configurationDTO));
             return "instance_details";
         }
+
         return "redirect:/user/" + id;
     }
 

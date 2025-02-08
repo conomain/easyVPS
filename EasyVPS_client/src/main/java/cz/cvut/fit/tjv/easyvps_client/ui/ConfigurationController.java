@@ -1,5 +1,6 @@
 package cz.cvut.fit.tjv.easyvps_client.ui;
 
+import cz.cvut.fit.tjv.easyvps_client.model.UserDTO;
 import org.springframework.ui.Model;
 
 import cz.cvut.fit.tjv.easyvps_client.model.ConfigurationDTO;
@@ -9,8 +10,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/configuration")
@@ -30,6 +33,15 @@ public class ConfigurationController {
     public String showConfigurationDetails(@PathVariable Long id, Model model) {
         Optional<ConfigurationDTO> configuration = configurationService.read(id);
         if (configuration.isPresent()) {
+
+            Set<Long> userIds = configuration.get().getUserIds();
+            List<UserDTO> usersUsingConfig = new ArrayList<>();
+            for (Long userId : userIds) {
+                Optional<UserDTO> user = configurationService.findUserById(userId);
+                user.ifPresent(usersUsingConfig::add);
+            }
+
+            model.addAttribute("usersUsingConfig", usersUsingConfig);
             model.addAttribute("configuration", configuration.get());
             return "configuration_details";
         }

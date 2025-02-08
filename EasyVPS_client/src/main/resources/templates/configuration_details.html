@@ -14,7 +14,15 @@
 <p><strong>Storage:</strong> <span th:text="${configuration.storage}">Storage</span></p>
 <p><strong>Price:</strong> <span th:text="${configuration.price}">Price</span></p>
 
-<a href="/configuration">Back to Configuration List</a> |
-<a th:href="@{'/configuration/' + ${configuration.id} + '/edit'}">Edit Configuration</a>
+<h2>Users using this configuration</h2>
+<ul>
+    <li th:each="user : ${usersUsingConfig}">
+        <p><strong>ID:</strong> <span th:text="${user.id}"></span></p>
+        <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
+        <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+    </li>
+</ul>
+
+<a href="/configuration">Back to Configuration List</a>
 </body>
 </html>

@@ -15,11 +15,11 @@
 <ul>
     <li th:each="entry : ${user.instances.entrySet()}">
         <a th:href="@{'/user/' + ${user.id} + '/instances/' + ${entry.value} + '?hash=' + ${entry.key}}">
-            <span th:text="'Hash: ' + ${entry.key} + ', Configuration ID: ' + ${entry.value}"></span>
+            <span th:text="${configurations[entry.value] != null ? configurations[entry.value].name : 'Unknown Configuration'}"></span>
+            <span th:text="' (IP Hash: ' + ${entry.key} + ')'"></span>
         </a>
     </li>
 </ul>
-
 
 <a th:href="@{'/user/' + ${user.id} + '/instances/create'}">
     <button type="button">Create Instance</button>

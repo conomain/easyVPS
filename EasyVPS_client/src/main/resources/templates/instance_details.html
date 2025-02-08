@@ -7,15 +7,24 @@
 <body>
 <h1>Instance details</h1>
 
-<p><strong>ID Configuration:</strong> <span th:text="${instance.configurationId}"></span></p>
-<p><strong>IP Hash:</strong> <span th:text="${instance.ipHash}"></span></p>
-<p><strong>IP:</strong> <span th:text="${instance.ip}"></span></p>
+<p><strong>Configuration Name:</strong>
+    <span th:text="${configuration != null ? configuration.name : 'Unknown'}"></span>
+</p>
+<p><strong>CPU Cores:</strong>
+    <span th:text="${configuration != null ? configuration.cpu_cores : 'N/A'}"></span>
+</p>
+<p><strong>RAM:</strong>
+    <span th:text="${configuration != null ? configuration.ram : 'N/A'}"></span>
+</p>
+<p><strong>Storage:</strong>
+    <span th:text="${configuration != null ? configuration.storage : 'N/A'}"></span>
+</p>
 
+<p><strong>IP:</strong> <span th:text="${instance.ip}"></span></p>
 
 <form th:action="@{/user/{id}/stop(id=${instance.userId})}" method="post">
     <input type="hidden" name="configurationId" th:value="${instance.configurationId}">
     <input type="hidden" name="hash" th:value="${instance.ipHash}">
-
     <button type="submit">Delete instance</button>
 </form>
 
