@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>User Form</title>
+    <link rel="stylesheet" th:href="@{/css/form.css}">
 </head>
 <body>
 <h1 th:text="${user.id == null} ? 'Create User' : 'Edit User'">User Form</h1>
@@ -20,11 +21,10 @@
         <label for="password">Password:</label>
         <input type="password" id="password" th:field="*{password}" required />
     </div>
-    <div>
+    <div class="form-buttons">
         <button type="submit" th:text="${user.id == null} ? 'Create' : 'Update'">Submit</button>
+        <a href="/user" class="cancel-btn">Cancel</a>
     </div>
 </form>
-
-<a href="/user">Cancel</a>
 </body>
 </html>

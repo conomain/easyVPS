@@ -63,9 +63,9 @@ public class ConfigurationController {
     }
 
     @PostMapping("{id}/edit")
-    public String editConfiguration(@PathVariable Long id, @ModelAttribute ConfigurationDTO configurationDTO, RedirectAttributes redirectAttributes) {
+    public String editConfiguration(@PathVariable Long id, @ModelAttribute ConfigurationDTO configuration, RedirectAttributes redirectAttributes) {
         try {
-            configurationService.update(configurationDTO);
+            configurationService.update(configuration);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Configuration update failed: " + e.getMessage());
         }

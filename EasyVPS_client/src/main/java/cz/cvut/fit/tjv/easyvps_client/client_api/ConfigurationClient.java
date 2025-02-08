@@ -54,6 +54,7 @@ public class ConfigurationClient {
 
     public void update(ConfigurationDTO configurationDTO) {
         configurationClient.put()
+                .uri("/{id}", configurationDTO.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(configurationDTO)
                 .retrieve()

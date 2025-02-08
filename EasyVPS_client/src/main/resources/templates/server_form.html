@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Server Form</title>
+    <link rel="stylesheet" th:href="@{/css/form.css}">
 </head>
 <body>
 <h1 th:text="${server.id == null} ? 'Create Server' : 'Edit Server'">Server Form</h1>
@@ -22,9 +23,8 @@
     </div>
     <div>
         <button type="submit" th:text="${server.id == null} ? 'Create' : 'Update'">Submit</button>
+        <a href="/server" class="cancel-btn">Cancel</a>
     </div>
 </form>
-
-<a href="/server">Cancel</a>
 </body>
 </html>

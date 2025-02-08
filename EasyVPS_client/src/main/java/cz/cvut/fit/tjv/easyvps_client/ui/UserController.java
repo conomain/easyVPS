@@ -113,7 +113,7 @@ public class UserController {
         catch (HttpClientErrorException.BadRequest e) {
             redirectAttributes.addFlashAttribute("error", true);
         }
-        return "redirect:/user/" + id + "/instances";
+        return "redirect:/user/" + id;
     }
 
     @PostMapping("/{id}/start")

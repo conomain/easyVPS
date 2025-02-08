@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Create Instance</title>
+    <link rel="stylesheet" th:href="@{/css/form.css}">
 </head>
 <body>
 <h1>Create Instance</h1>
@@ -15,8 +16,8 @@
     </div>
     <div>
         <button type="submit">Create Instance</button>
+        <a th:href="@{'/user/' + ${userId}}">Cancel</a>
     </div>
 </form>
-<a th:href="@{'/user/' + ${userId}}">Cancel</a>
 </body>
 </html>

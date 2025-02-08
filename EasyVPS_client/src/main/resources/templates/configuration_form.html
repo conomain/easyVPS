@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Configuration Form</title>
+    <link rel="stylesheet" th:href="@{/css/form.css}">
 </head>
 <body>
 <h1 th:text="${configuration.id == null} ? 'Create Configuration' : 'Edit Configuration'">Configuration Form</h1>
@@ -32,9 +33,8 @@
     </div>
     <div>
         <button type="submit" th:text="${configuration.id == null} ? 'Create' : 'Update'">Submit</button>
+        <a href="/configuration" class="cancel-btn">Cancel</a>
     </div>
 </form>
-
-<a href="/configuration">Cancel</a>
 </body>
 </html>
