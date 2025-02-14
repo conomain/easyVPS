@@ -6,6 +6,9 @@ import cz.cvut.fit.tjv.easyvps.controller.dto.UserDTO;
 import cz.cvut.fit.tjv.easyvps.domain.Instance;
 import cz.cvut.fit.tjv.easyvps.domain.User;
 import cz.cvut.fit.tjv.easyvps.service.UserServiceInterface;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,6 +66,12 @@ public class UserController {
     }
 
     @PutMapping(path = "/{id}")
+    @Operation(summary = "Update user by ID", description = "Updates a user's details based on the provided ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User updated successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data")
+    })
     public UserDTO updateUser(@PathVariable("id") Long id,
                               @RequestBody UserDTO userDTO) {
         User user = userDTOConverter.toEntity(userDTO);
@@ -71,17 +80,32 @@ public class UserController {
     }
 
     @DeleteMapping(path = "/{id}")
+    @Operation(summary = "Delete user by ID", description = "Deletes a user by their ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     public void deleteUser(@PathVariable("id") Long id) {
         userService.deleteById(id);
     }
 
     @PostMapping(path = "/{id}/start")
+    @Operation(summary = "Add an instance to a user", description = "Adds a new instance to a user with the specified configuration.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Instance added successfully"),
+            @ApiResponse(responseCode = "404", description = "User or configuration not found")
+    })
     public UserDTO addInstanceToUser(@PathVariable("id") Long userId,
                                   @RequestParam("configurationId") Long configurationId) {
         return userDTOConverter.toDTO(userService.addInstanceToUser(configurationId, userId));
     }
 
     @DeleteMapping(path = "/{id}/stop")
+    @Operation(summary = "Remove an instance from a user", description = "Removes an instance from a user by configuration ID and IP hash.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Instance removed successfully"),
+            @ApiResponse(responseCode = "404", description = "User or configuration not found")
+    })
     public UserDTO removeInstanceFromUser(@PathVariable("id") Long userId,
                                        @RequestParam("configurationId") Long configurationId,
                                        @RequestParam("hash") String ipHash) {
