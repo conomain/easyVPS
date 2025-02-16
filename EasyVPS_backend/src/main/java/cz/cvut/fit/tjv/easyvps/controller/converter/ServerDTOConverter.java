@@ -30,7 +30,7 @@ public class ServerDTOConverter implements DTOConverterInterface<ServerDTO, Serv
         server.setRam(dto.getRam());
         server.setStorage(dto.getStorage());
 
-        Set<Instance> instances = new HashSet<>();
+        List<Instance> instances = new ArrayList<>();
         if (dto.getInstances() != null) {
             for (Map.Entry<String, Long> entry : dto.getInstances().entrySet()) {
                 Long configurationId = entry.getValue();

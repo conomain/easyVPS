@@ -8,9 +8,7 @@ import cz.cvut.fit.tjv.easyvps.service.UserServiceInterface;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @AllArgsConstructor
@@ -36,7 +34,7 @@ public class ConfigurationDTOConverter implements DTOConverterInterface<Configur
         configuration.setStorage(dto.getStorage());
         configuration.setPrice(dto.getPrice());
 
-        Set<Instance> instances = new HashSet<>();
+        List<Instance> instances = new ArrayList<>();
         if (dto.getUserIds() != null) {
             for (Long userId : dto.getUserIds()) {
 

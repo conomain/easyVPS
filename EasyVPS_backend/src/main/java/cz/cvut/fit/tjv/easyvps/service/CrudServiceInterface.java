@@ -1,5 +1,7 @@
 package cz.cvut.fit.tjv.easyvps.service;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import java.util.Optional;
 
 public interface CrudServiceInterface<T, ID> {
@@ -10,7 +12,7 @@ public interface CrudServiceInterface<T, ID> {
 
     Iterable<T> readAll();
 
-    void update(ID id, T e) throws IllegalArgumentException;
+    void update(ID id, T e) throws EntityNotFoundException;
 
-    void deleteById(ID id) throws IllegalArgumentException;
+    void deleteById(ID id) throws EntityNotFoundException;
 }

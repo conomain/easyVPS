@@ -32,7 +32,7 @@ public class UserDTOConverter implements DTOConverterInterface<UserDTO, User> {
         user.setEmail(dto.getEmail());
         user.setPassword(dto.getPassword());
 
-        Set<Instance> instances = new HashSet<>();
+        List<Instance> instances = new ArrayList<>();
         if (dto.getInstances() != null) {
             for (Map.Entry<String, Long> entry : dto.getInstances().entrySet()) {
                 Long configurationId = entry.getValue();

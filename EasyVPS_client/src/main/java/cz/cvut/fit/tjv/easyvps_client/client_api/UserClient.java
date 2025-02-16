@@ -17,7 +17,6 @@ import java.util.Optional;
 @Component
 public class UserClient {
     private RestClient userClient;
-    private String baseUrl;
 
     public UserClient(@Value("${api.url}") String baseUrl) {
         userClient = RestClient.create(baseUrl + "/user");
@@ -91,22 +90,38 @@ public class UserClient {
         } catch (HttpClientErrorException.NotFound e) {
             System.out.println("Instance not found.");
             return Optional.empty();
+        } catch (HttpClientErrorException.BadRequest e) {
+            System.out.println("Bad request: " + e.getResponseBodyAsString());
+            throw new RuntimeException("Invalid request: " + e.getResponseBodyAsString());
         }
     }
 
     public void addInstanceToUser(Long userId, Long configurationId) {
-        userClient.post()
-                .uri("/{id}/start?configurationId={configId}", userId, configurationId)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            userClient.post()
+                    .uri("/{id}/start?configurationId={configId}", userId, configurationId)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (HttpClientErrorException.BadRequest e) {
+            System.out.println("Bad request: " + e.getResponseBodyAsString());
+            throw new RuntimeException("No available server for configuration: " + e.getResponseBodyAsString());
+        } catch (HttpClientErrorException.NotFound e) {
+            System.out.println("User or configuration not found.");
+            throw new RuntimeException("User or configuration not found.");
+        }
     }
 
     public void removeInstanceFromUser(Long userId, Long configurationId, String ipHash) {
-        userClient.delete()
-                .uri("/{id}/stop?configurationId={configId}&hash={ipHash}", userId, configurationId, ipHash)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            userClient.delete()
+                    .uri("/{id}/stop?configurationId={configId}&hash={ipHash}", userId, configurationId, ipHash)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (HttpClientErrorException.NotFound e) {
+            System.out.println("User or configuration not found.");
+            throw new RuntimeException("User or configuration not found.");
+        }
     }
 }

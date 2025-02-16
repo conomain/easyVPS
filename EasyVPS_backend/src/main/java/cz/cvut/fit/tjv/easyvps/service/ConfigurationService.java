@@ -7,12 +7,15 @@ import cz.cvut.fit.tjv.easyvps.domain.User;
 import cz.cvut.fit.tjv.easyvps.persistence.ConfigurationRepository;
 import cz.cvut.fit.tjv.easyvps.persistence.ServerRepository;
 import cz.cvut.fit.tjv.easyvps.persistence.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -29,11 +32,13 @@ public class ConfigurationService extends CrudServiceInterfaceImpl<Configuration
     public void deleteById(Long id) throws IllegalArgumentException {
 
         Configuration configuration = configurationRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Configuration with id " + id + " does not exist."));
+                .orElseThrow(() -> new EntityNotFoundException("Configuration with id " + id + " does not exist."));
 
-        Set<Instance> instances = configuration.getInstances();
+        Iterator<Instance> iterator = configuration.getInstances().iterator();
 
-        for (Instance instance : instances) {
+        while (iterator.hasNext()) {
+            Instance instance = iterator.next();
+
             User user = instance.getUser();
             user.getInstances().remove(instance);
             userRepository.save(user);
@@ -42,10 +47,10 @@ public class ConfigurationService extends CrudServiceInterfaceImpl<Configuration
             serverService.freeServerResources(server, instance.getConfiguration());
             serverRepository.save(server);
 
-            configuration.getInstances().remove(instance);
-            configurationRepository.save(configuration);
+            iterator.remove();
         }
 
+        configurationRepository.save(configuration);
         configurationRepository.deleteById(id);
     }
 

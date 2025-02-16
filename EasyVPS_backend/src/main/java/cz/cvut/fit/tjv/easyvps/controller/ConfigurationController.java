@@ -9,7 +9,9 @@ import cz.cvut.fit.tjv.easyvps.service.ConfigurationServiceInterface;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -21,9 +23,9 @@ public class ConfigurationController {
     private final DTOConverterInterface<ConfigurationDTO, Configuration> configurationDTOConverter;
 
     @GetMapping
-    public Set<ConfigurationDTO> getConfigurations() {
+    public List<ConfigurationDTO> getConfigurations() {
         Iterable<Configuration> configurations = configurationService.readAll();
-        Set<ConfigurationDTO> configurationDTOS = new HashSet<>();
+        List<ConfigurationDTO> configurationDTOS = new ArrayList<>();
 
         for (Configuration configuration : configurations) {
             configurationDTOS.add(configurationDTOConverter.toDTO(configuration));

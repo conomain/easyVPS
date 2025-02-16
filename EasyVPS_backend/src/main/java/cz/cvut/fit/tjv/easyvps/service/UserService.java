@@ -2,15 +2,14 @@ package cz.cvut.fit.tjv.easyvps.service;
 
 import cz.cvut.fit.tjv.easyvps.domain.*;
 import cz.cvut.fit.tjv.easyvps.persistence.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -47,10 +46,13 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
     public void deleteById(Long userId) throws IllegalArgumentException {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " does not exist."));
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " does not exist."));
 
-        Set<Instance> instances = user.getInstances();
-        for (Instance instance : instances) {
+        Iterator<Instance> iterator = user.getInstances().iterator();
+
+        while (iterator.hasNext()) {
+            Instance instance = iterator.next();
+
             Server server = instance.getServer();
             serverService.freeServerResources(server, instance.getConfiguration());
             server.getInstances().remove(instance);
@@ -60,24 +62,32 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
             configuration.getInstances().remove(instance);
             configurationRepository.save(configuration);
 
-            user.getInstances().remove(instance);
-            userRepository.save(user);
+            iterator.remove();
         }
 
+        userRepository.save(user);
         userRepository.deleteById(userId);
+    }
+
+    public User find(Long userId) {
+        if (userRepository.existsById(userId)) {
+            return userRepository.findById(userId).get();
+        } else {
+            throw new EntityNotFoundException("User with id " + userId + " does not exist.");
+        }
     }
 
     @Override
     public User addInstanceToUser(Long configurationId, Long userId) throws IllegalArgumentException {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " does not exist."));
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " does not exist."));
 
         Configuration configuration = configurationRepository.findById(configurationId)
-                .orElseThrow(() -> new IllegalArgumentException("Configuration with id " + configurationId + " does not exist."));
+                .orElseThrow(() -> new EntityNotFoundException("Configuration with id " + configurationId + " does not exist."));
 
         Server server = serverService.findAvailableServer(configuration)
-                .orElseThrow(() -> new IllegalArgumentException("No available server for configuration."));
+                .orElseThrow(() -> new EntityNotFoundException("No available server for configuration."));
 
         serverService.allocateServerResources(server, configuration);
 
@@ -119,14 +129,14 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
     public User removeInstanceFromUser(Long userId, Long configurationId, String ipHash) throws IllegalArgumentException {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User with id " + userId + " does not exist."));
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " does not exist."));
 
         Configuration configuration = configurationRepository.findById(configurationId)
-                .orElseThrow(() -> new IllegalArgumentException("Configuration with id " + configurationId + " does not exist."));
+                .orElseThrow(() -> new EntityNotFoundException("Configuration with id " + configurationId + " does not exist."));
 
         Instance.InstanceId instanceId = new Instance.InstanceId(userId, configurationId, ipHash);
         Instance instance = instanceRepository.findById(instanceId)
-                .orElseThrow(() -> new IllegalArgumentException("Instance for user id " + userId +
+                .orElseThrow(() -> new EntityNotFoundException("Instance for user id " + userId +
                         " and configuration id " + configurationId + " and ipHash " + ipHash + " does not exist."));
 
 
@@ -150,7 +160,7 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
     public Instance findInstance(Long userId, Long configurationId, String ipHash) {
         Instance.InstanceId instanceId = new Instance.InstanceId(userId, configurationId, ipHash);
         return instanceRepository.findById(instanceId)
-                .orElseThrow(() -> new IllegalArgumentException("Instance for user id " + userId +
+                .orElseThrow(() -> new EntityNotFoundException("Instance for user id " + userId +
                         " and configuration id " + configurationId + " and ipHash " + ipHash + " does not exist."));
     }
 

@@ -2,16 +2,14 @@ package cz.cvut.fit.tjv.easyvps.service;
 
 import cz.cvut.fit.tjv.easyvps.domain.*;
 import cz.cvut.fit.tjv.easyvps.persistence.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -25,11 +23,13 @@ public class ServerService extends CrudServiceInterfaceImpl<Server, Long> implem
     public void deleteById(Long id) throws IllegalArgumentException {
 
         Server server = serverRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Server with id " + id + " does not exist."));
+                .orElseThrow(() -> new EntityNotFoundException("Server with id " + id + " does not exist."));
 
-        Set<Instance> instances = server.getInstances();
+        Iterator<Instance> iterator = server.getInstances().iterator();
 
-        for (Instance instance : instances) {
+        while (iterator.hasNext()) {
+            Instance instance = iterator.next();
+
             User user = instance.getUser();
             user.getInstances().remove(instance);
             userRepository.save(user);
@@ -38,11 +38,10 @@ public class ServerService extends CrudServiceInterfaceImpl<Server, Long> implem
             configuration.getInstances().remove(instance);
             configurationRepository.save(configuration);
 
-            server.getInstances().remove(instance);
-            freeServerResources(server, instance.getConfiguration());
-            serverRepository.save(server);
+            iterator.remove();
         }
 
+        serverRepository.save(server);
         serverRepository.deleteById(id);
     }
 

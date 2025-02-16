@@ -11,9 +11,7 @@ import cz.cvut.fit.tjv.easyvps.service.ServerServiceInterface;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/server")
@@ -25,9 +23,9 @@ public class ServerController {
     private final DTOConverterInterface<InstanceDTO, Instance> instanceDTOConverter;
 
     @GetMapping
-    public Set<ServerDTO> getServers() {
+    public List<ServerDTO> getServers() {
         Iterable<Server> servers = serverService.readAll();
-        Set<ServerDTO> serverDTOS = new HashSet<>();
+        List<ServerDTO> serverDTOS = new ArrayList<>();
 
         for (Server server : servers) {
             serverDTOS.add(serverDTOConverter.toDTO(server));
@@ -42,9 +40,9 @@ public class ServerController {
     }
 
     @GetMapping("/{id}/instances")
-    public Set<InstanceDTO> getServerInstances(@PathVariable("id") Long id) {
+    public List<InstanceDTO> getServerInstances(@PathVariable("id") Long id) {
         Server server = serverService.readById(id).get();
-        Set<InstanceDTO> instanceDTOS = new HashSet<>();
+        List<InstanceDTO> instanceDTOS = new ArrayList<>();
 
         for (Instance instance : server.getInstances()) {
             instanceDTOS.add(instanceDTOConverter.toDTO(instance));
