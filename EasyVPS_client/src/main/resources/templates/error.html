@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 30px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        h1 {
+            color: #d9534f;
+        }
+        p {
+            font-size: 1.2em;
+        }
+        .home-link {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #0275d8;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .home-link:hover {
+            background-color: #025aa5;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Error occurred</h1>
+    <p th:text="${errorMessage}">Unknown error.</p>
+    <a th:href="@{/}" class="home-link">Back to Home page</a>
+</div>
+</body>
+</html>

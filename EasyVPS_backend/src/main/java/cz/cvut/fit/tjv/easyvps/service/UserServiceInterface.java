@@ -6,8 +6,6 @@ import jakarta.persistence.EntityNotFoundException;
 
 public interface UserServiceInterface extends CrudServiceInterface<User, Long> {
 
-    User find(Long userId) throws EntityNotFoundException;
-
     User addInstanceToUser(Long configurationId, Long userId) throws EntityNotFoundException;
 
     User removeInstanceFromUser(Long userId, Long configurationId, String ipHash) throws EntityNotFoundException;

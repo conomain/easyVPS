@@ -38,7 +38,7 @@ public class ConfigurationDTOConverter implements DTOConverterInterface<Configur
         if (dto.getUserIds() != null) {
             for (Long userId : dto.getUserIds()) {
 
-                User user = userService.readById(userId).orElse(null);
+                User user = userService.readById(userId);
                 if (user == null) {
                     continue;
                 }

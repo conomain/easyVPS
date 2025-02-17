@@ -36,7 +36,7 @@ public class ConfigurationController {
 
     @GetMapping("/{id}")
     public ConfigurationDTO getConfiguration(@PathVariable("id") Long id) {
-        return configurationDTOConverter.toDTO(configurationService.readById(id).get());
+        return configurationDTOConverter.toDTO(configurationService.readById(id));
     }
 
     @PostMapping

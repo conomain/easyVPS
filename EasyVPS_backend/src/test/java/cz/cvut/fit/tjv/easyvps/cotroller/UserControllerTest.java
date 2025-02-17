@@ -111,7 +111,7 @@ public class UserControllerTest {
 
         UserDTO userDTO = new UserDTO(userId, "user1", "user1@example.com", "secret", Collections.emptyMap());
 
-        when(userService.readById(userId)).thenReturn(Optional.of(user));
+        when(userService.readById(userId));
         when(userDTOConverter.toDTO(user)).thenReturn(userDTO);
 
         mockMvc.perform(get("/api/user/{id}", userId))
@@ -138,7 +138,7 @@ public class UserControllerTest {
 
         InstanceDTO instanceDTO = new InstanceDTO(10L, userId, 5L, "192.168.1.100", "hash");
 
-        when(userService.readById(userId)).thenReturn(Optional.of(user));
+        when(userService.readById(userId));
         when(instanceDTOConverter.toDTO(instance)).thenReturn(instanceDTO);
 
         mockMvc.perform(get("/api/user/{id}/instances", userId))

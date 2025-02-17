@@ -8,7 +8,7 @@ public interface CrudServiceInterface<T, ID> {
 
     T create(T e) throws IllegalArgumentException;
 
-    Optional<T> readById(ID id);
+    T readById(ID id);
 
     Iterable<T> readAll();
 

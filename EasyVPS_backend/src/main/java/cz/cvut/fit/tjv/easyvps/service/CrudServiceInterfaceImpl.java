@@ -1,6 +1,7 @@
 package cz.cvut.fit.tjv.easyvps.service;
 
 import cz.cvut.fit.tjv.easyvps.domain.EntityWithId;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Table;
 import jakarta.transaction.Transactional;
 import org.springframework.data.repository.CrudRepository;
@@ -22,8 +23,9 @@ public abstract class CrudServiceInterfaceImpl<T extends EntityWithId<ID>, ID> i
     }
 
     @Override
-    public Optional<T> readById(ID id) {
-        return getRepository().findById(id);
+    public T readById(ID id) {
+        return getRepository().findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Entity with id " + id + " does not exist."));
     }
 
     @Override
@@ -32,17 +34,17 @@ public abstract class CrudServiceInterfaceImpl<T extends EntityWithId<ID>, ID> i
     }
 
     @Override
-    public void update(ID id, T e) throws IllegalArgumentException {
+    public void update(ID id, T e) throws EntityNotFoundException {
         if (!getRepository().existsById(id)) {
-            throw new IllegalArgumentException("Entity with id " + id + " does not exist.");
+            throw new EntityNotFoundException("Entity with id " + id + " does not exist.");
         }
         getRepository().save(e);
     }
 
     @Override
-    public void deleteById(ID id) throws IllegalArgumentException {
+    public void deleteById(ID id) throws EntityNotFoundException {
         if (!getRepository().existsById(id)) {
-            throw new IllegalArgumentException("Entity with id " + id + " does not exist.");
+            throw new EntityNotFoundException("Entity with id " + id + " does not exist.");
         }
         getRepository().deleteById(id);
     }

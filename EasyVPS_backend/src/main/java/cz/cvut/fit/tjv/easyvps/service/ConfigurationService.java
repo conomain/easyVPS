@@ -29,10 +29,9 @@ public class ConfigurationService extends CrudServiceInterfaceImpl<Configuration
     private ServerService serverService;
 
     @Override
-    public void deleteById(Long id) throws IllegalArgumentException {
+    public void deleteById(Long id) throws EntityNotFoundException {
 
-        Configuration configuration = configurationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Configuration with id " + id + " does not exist."));
+        Configuration configuration = configurationRepository.findById(id).get();
 
         Iterator<Instance> iterator = configuration.getInstances().iterator();
 

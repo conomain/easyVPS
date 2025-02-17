@@ -44,7 +44,7 @@ public class UserController {
     })
     @GetMapping("/{id}")
     public UserDTO getUser(@PathVariable("id") Long id) {
-        return userDTOConverter.toDTO(userService.find(id));
+        return userDTOConverter.toDTO(userService.readById(id));
     }
 
 
@@ -54,7 +54,7 @@ public class UserController {
     })
     @GetMapping("/{id}/instances")
     public Set<InstanceDTO> getUserInstances(@PathVariable("id") Long id) {
-        User user = userService.readById(id).get();
+        User user = userService.readById(id);
         Set<InstanceDTO> instanceDTOS = new HashSet<>();
 
         for (Instance instance : user.getInstances()) {

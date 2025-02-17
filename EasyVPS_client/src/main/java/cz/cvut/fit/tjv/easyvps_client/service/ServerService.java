@@ -5,7 +5,6 @@ import cz.cvut.fit.tjv.easyvps_client.model.InstanceDTO;
 import cz.cvut.fit.tjv.easyvps_client.model.ServerDTO;
 import org.springframework.stereotype.Service;
 
-import java.security.Provider;
 import java.util.List;
 import java.util.Optional;
 

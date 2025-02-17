@@ -1,6 +1,7 @@
 package cz.cvut.fit.tjv.easyvps_client.client_api;
 
-import cz.cvut.fit.tjv.easyvps_client.model.ConfigurationDTO;
+import cz.cvut.fit.tjv.easyvps_client.exception.InvalidRequestException;
+import cz.cvut.fit.tjv.easyvps_client.exception.ResourceNotFoundException;
 import cz.cvut.fit.tjv.easyvps_client.model.InstanceDTO;
 import cz.cvut.fit.tjv.easyvps_client.model.UserDTO;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,25 +10,28 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Component
-public class UserClient {
-    private RestClient userClient;
+public class UserClient extends JSONParser{
+
+    private final RestClient userClient;
 
     public UserClient(@Value("${api.url}") String baseUrl) {
         userClient = RestClient.create(baseUrl + "/user");
     }
 
     public List<UserDTO> readAll() {
-        return Arrays.asList(Objects.requireNonNull(userClient.get()
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .toEntity(UserDTO[].class)
-                .getBody()));
+        try {
+            return Arrays.asList(Objects.requireNonNull(userClient.get()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .toEntity(UserDTO[].class)
+                    .getBody()));
+        } catch (HttpClientErrorException e) {
+            String apiMessage = getApiMessage(e.getResponseBodyAsString());
+            throw new InvalidRequestException("Error reading users: " + apiMessage);
+        }
     }
 
     public Optional<UserDTO> read(Long userId) {
@@ -39,44 +43,63 @@ public class UserClient {
                     .toEntity(UserDTO.class)
                     .getBody());
         } catch (HttpClientErrorException.NotFound e) {
-            System.out.println("User not found.");
-            return Optional.empty();
+            throw new ResourceNotFoundException("User with id " + userId + " not found.");
         }
     }
 
     public void create(UserDTO userDTO) {
-        userClient.post()
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(userDTO)
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            userClient.post()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(userDTO)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (HttpClientErrorException.BadRequest e) {
+            String apiMessage = getApiMessage(e.getResponseBodyAsString());
+            throw new InvalidRequestException("Error creating user: " + apiMessage);
+        }
     }
 
     public void update(UserDTO userDTO) {
-        userClient.put()
-                .uri("/{id}", userDTO.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(userDTO)
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            userClient.put()
+                    .uri("/{id}", userDTO.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(userDTO)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ResourceNotFoundException("User with id " + userDTO.getId() + " not found.");
+        } catch (HttpClientErrorException.BadRequest e) {
+            String apiMessage = getApiMessage(e.getResponseBodyAsString());
+            throw new InvalidRequestException("Error updating user: " + apiMessage);
+        }
     }
 
     public void delete(Long userId) {
-        userClient.delete()
-                .uri("/{id}", userId)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            userClient.delete()
+                    .uri("/{id}", userId)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ResourceNotFoundException("User with id " + userId + " not found.");
+        }
     }
 
     public List<InstanceDTO> getUserInstances(Long userId) {
-        return Arrays.asList(Objects.requireNonNull(userClient.get()
-                .uri("/{id}/instances", userId)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .toEntity(InstanceDTO[].class)
-                .getBody()));
+        try {
+            return Arrays.asList(Objects.requireNonNull(userClient.get()
+                    .uri("/{id}/instances", userId)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .toEntity(InstanceDTO[].class)
+                    .getBody()));
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ResourceNotFoundException("User with id " + userId + " not found.");
+        }
     }
 
     public Optional<InstanceDTO> getInstance(Long userId, Long configurationId, String ipHash) {
@@ -88,11 +111,7 @@ public class UserClient {
                     .toEntity(InstanceDTO.class)
                     .getBody());
         } catch (HttpClientErrorException.NotFound e) {
-            System.out.println("Instance not found.");
-            return Optional.empty();
-        } catch (HttpClientErrorException.BadRequest e) {
-            System.out.println("Bad request: " + e.getResponseBodyAsString());
-            throw new RuntimeException("Invalid request: " + e.getResponseBodyAsString());
+            throw new ResourceNotFoundException("Instance not found.");
         }
     }
 
@@ -103,12 +122,11 @@ public class UserClient {
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .toBodilessEntity();
-        } catch (HttpClientErrorException.BadRequest e) {
-            System.out.println("Bad request: " + e.getResponseBodyAsString());
-            throw new RuntimeException("No available server for configuration: " + e.getResponseBodyAsString());
         } catch (HttpClientErrorException.NotFound e) {
-            System.out.println("User or configuration not found.");
-            throw new RuntimeException("User or configuration not found.");
+            throw new ResourceNotFoundException("User or configuration not found.");
+        } catch (HttpClientErrorException.BadRequest e) {
+            String apiMessage = getApiMessage(e.getResponseBodyAsString());
+            throw new InvalidRequestException(apiMessage);
         }
     }
 
@@ -120,8 +138,7 @@ public class UserClient {
                     .retrieve()
                     .toBodilessEntity();
         } catch (HttpClientErrorException.NotFound e) {
-            System.out.println("User or configuration not found.");
-            throw new RuntimeException("User or configuration not found.");
+            throw new ResourceNotFoundException("Instance not found.");
         }
     }
 }

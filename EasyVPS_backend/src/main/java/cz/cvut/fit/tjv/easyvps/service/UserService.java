@@ -45,8 +45,7 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
     @Override
     public void deleteById(Long userId) throws IllegalArgumentException {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " does not exist."));
+        User user = userRepository.findById(userId).get();
 
         Iterator<Instance> iterator = user.getInstances().iterator();
 
@@ -69,14 +68,6 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
         userRepository.deleteById(userId);
     }
 
-    public User find(Long userId) {
-        if (userRepository.existsById(userId)) {
-            return userRepository.findById(userId).get();
-        } else {
-            throw new EntityNotFoundException("User with id " + userId + " does not exist.");
-        }
-    }
-
     @Override
     public User addInstanceToUser(Long configurationId, Long userId) throws IllegalArgumentException {
 
@@ -87,7 +78,7 @@ public class UserService extends CrudServiceInterfaceImpl<User, Long> implements
                 .orElseThrow(() -> new EntityNotFoundException("Configuration with id " + configurationId + " does not exist."));
 
         Server server = serverService.findAvailableServer(configuration)
-                .orElseThrow(() -> new EntityNotFoundException("No available server for configuration."));
+                .orElseThrow(() -> new IllegalArgumentException("No available server for configuration."));
 
         serverService.allocateServerResources(server, configuration);
 

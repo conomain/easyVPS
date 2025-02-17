@@ -20,10 +20,9 @@ public class ServerService extends CrudServiceInterfaceImpl<Server, Long> implem
     private final ConfigurationRepository configurationRepository;
 
     @Override
-    public void deleteById(Long id) throws IllegalArgumentException {
+    public void deleteById(Long id) throws EntityNotFoundException {
 
-        Server server = serverRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Server with id " + id + " does not exist."));
+        Server server = serverRepository.findById(id).get();
 
         Iterator<Instance> iterator = server.getInstances().iterator();
 

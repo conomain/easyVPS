@@ -36,12 +36,12 @@ public class ServerController {
 
     @GetMapping("/{id}")
     public ServerDTO getServer(@PathVariable("id") Long id) {
-        return serverDTOConverter.toDTO(serverService.readById(id).get());
+        return serverDTOConverter.toDTO(serverService.readById(id));
     }
 
     @GetMapping("/{id}/instances")
     public List<InstanceDTO> getServerInstances(@PathVariable("id") Long id) {
-        Server server = serverService.readById(id).get();
+        Server server = serverService.readById(id);
         List<InstanceDTO> instanceDTOS = new ArrayList<>();
 
         for (Instance instance : server.getInstances()) {

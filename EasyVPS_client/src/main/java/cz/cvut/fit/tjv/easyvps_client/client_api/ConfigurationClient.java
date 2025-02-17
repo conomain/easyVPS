@@ -1,5 +1,7 @@
 package cz.cvut.fit.tjv.easyvps_client.client_api;
 
+import cz.cvut.fit.tjv.easyvps_client.exception.InvalidRequestException;
+import cz.cvut.fit.tjv.easyvps_client.exception.ResourceNotFoundException;
 import cz.cvut.fit.tjv.easyvps_client.model.ConfigurationDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -7,26 +9,27 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Component
-public class ConfigurationClient {
+public class ConfigurationClient extends JSONParser {
 
-    private RestClient configurationClient;
+    private final RestClient configurationClient;
 
     public ConfigurationClient(@Value("${api.url}") String serverUrl) {
         configurationClient = RestClient.create(serverUrl + "/configuration");
     }
 
     public List<ConfigurationDTO> readAll() {
-        return Arrays.asList(Objects.requireNonNull(configurationClient.get()
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .toEntity(ConfigurationDTO[].class)
-                .getBody()));
+        try {
+            return Arrays.asList(Objects.requireNonNull(configurationClient.get()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .toEntity(ConfigurationDTO[].class)
+                    .getBody()));
+        } catch (HttpClientErrorException e) {
+            throw new InvalidRequestException("Error reading configurations: " + e.getResponseBodyAsString());
+        }
     }
 
     public Optional<ConfigurationDTO> read(Long configurationId) {
@@ -38,34 +41,49 @@ public class ConfigurationClient {
                     .toEntity(ConfigurationDTO.class)
                     .getBody());
         } catch (HttpClientErrorException.NotFound e) {
-            System.out.println("Configuration not found.");
-            return Optional.empty();
+            throw new ResourceNotFoundException("Configuration with id " + configurationId + " not found");
         }
     }
 
     public void create(ConfigurationDTO configurationDTO) {
-        configurationClient.post()
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(configurationDTO)
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            configurationClient.post()
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(configurationDTO)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (HttpClientErrorException.BadRequest e) {
+            String apiMessage = getApiMessage(e.getResponseBodyAsString());
+            throw new InvalidRequestException("Error creating configuration: " + apiMessage);
+        }
     }
 
     public void update(ConfigurationDTO configurationDTO) {
-        configurationClient.put()
-                .uri("/{id}", configurationDTO.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(configurationDTO)
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            configurationClient.put()
+                    .uri("/{id}", configurationDTO.getId())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(configurationDTO)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ResourceNotFoundException("Configuration with id " + configurationDTO.getId() + " not found.");
+        } catch (HttpClientErrorException.BadRequest e) {
+            String apiMessage = getApiMessage(e.getResponseBodyAsString());
+            throw new InvalidRequestException("Error updating configuration: " + apiMessage);
+        }
     }
 
     public void delete(Long configurationId) {
-        configurationClient.delete()
-                .uri("/{id}", configurationId)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .toBodilessEntity();
+        try {
+            configurationClient.delete()
+                    .uri("/{id}", configurationId)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (HttpClientErrorException.NotFound e) {
+            throw new ResourceNotFoundException("Configuration with id " + configurationId + " not found.");
+        }
     }
 }
